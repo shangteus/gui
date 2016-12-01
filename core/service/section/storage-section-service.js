@@ -85,7 +85,7 @@ exports.StorageSectionService = AbstractSectionService.specialize({
     init: {
         value: function(storageRepository, topologyService, peeringService, filesystemService, notificationCenter, userRepository) {
             this._rootDatasetPerVolumeId = new Map();
-            this._storageRepository = storageRepository || StorageRepository.instance;
+            this._volumeRepository = storageRepository || StorageRepository.instance;
             this._userRepository = userRepository || UserRepository.instance;
             this._topologyService = topologyService || TopologyService.instance;
             this._peeringService = peeringService || PeeringService.instance;
@@ -96,21 +96,21 @@ exports.StorageSectionService = AbstractSectionService.specialize({
 
     loadEntries: {
         value: function() {
-            return this._storageRepository.listVolumes();
+            return this._volumeRepository.listVolumes();
         }
     },
 
     loadExtraEntries: {
         value: function() {
             return Promise.all([
-                this._storageRepository.getVolumeImporter()
+                this._volumeRepository.getVolumeImporter()
             ]);
         }
     },
 
     loadOverview: {
         value: function() {
-            return this._storageRepository.getStorageOverview();
+            return this._volumeRepository.getStorageOverview();
         }
     },
 
@@ -121,7 +121,7 @@ exports.StorageSectionService = AbstractSectionService.specialize({
 
     listShares: {
         value: function() {
-            return this._storageRepository.listShares();
+            return this._volumeRepository.listShares();
         }
     },
 
@@ -129,7 +129,7 @@ exports.StorageSectionService = AbstractSectionService.specialize({
         value: function() {
             var self = this,
                 dataset;
-            return this._datasetsPromise || (this._datasetsPromise = this._storageRepository.listVolumeDatasets().then(function(datasets) {
+            return this._datasetsPromise || (this._datasetsPromise = this._volumeRepository.listVolumeDatasets().then(function(datasets) {
                 self._cacheRootDatasetForVolume();
                 return datasets;
             }));
@@ -138,19 +138,19 @@ exports.StorageSectionService = AbstractSectionService.specialize({
 
     listVolumeSnapshots: {
         value: function() {
-            return this._storageRepository.listVolumeSnapshots();
+            return this._volumeRepository.listVolumeSnapshots();
         }
     },
 
     listVmwareDatastores: {
         value: function(peer, full) {
-            return this._storageRepository.listVmwareDatastores(peer, full);
+            return this._volumeRepository.listVmwareDatastores(peer, full);
         }
     },
 
     listVmwareDatasets: {
         value: function() {
-            return this._storageRepository.listVmwareDatasets();
+            return this._volumeRepository.listVmwareDatasets();
         }
     },
 
@@ -179,7 +179,7 @@ exports.StorageSectionService = AbstractSectionService.specialize({
             if (!volume.key_encrypted) {
                 volume.auto_unlock = false;
             }
-            return this._storageRepository.saveVolume(volume, password);
+            return this._volumeRepository.saveVolume(volume, password);
         }
     },
 
@@ -194,7 +194,7 @@ exports.StorageSectionService = AbstractSectionService.specialize({
             if (!volume.providers_presence) {
                 volume.providers_presence = 'NONE';
             }
-            return this._storageRepository.saveVolume(volume);
+            return this._volumeRepository.saveVolume(volume);
         }
     },
 
@@ -223,7 +223,7 @@ exports.StorageSectionService = AbstractSectionService.specialize({
 
     listDetachedVolumes: {
         value: function() {
-            return this._storageRepository.listDetachedVolumes();
+            return this._volumeRepository.listDetachedVolumes();
         }
     },
 
@@ -241,7 +241,7 @@ exports.StorageSectionService = AbstractSectionService.specialize({
             return this._volumeServices.then(function(volumeServices) {
                 return volumeServices.import(detachedVolume.id, detachedVolume.name);
             }).then(function() {
-                self._storageRepository.listDetachedVolumes();
+                self._volumeRepository.listDetachedVolumes();
             });
         }
     },
@@ -252,7 +252,7 @@ exports.StorageSectionService = AbstractSectionService.specialize({
             return this._volumeServices.then(function(volumeServices) {
                 return volumeServices.deleteExported(detachedVolume.name);
             }).then(function() {
-                self._storageRepository.listDetachedVolumes();
+                self._volumeRepository.listDetachedVolumes();
             });
         }
     },
@@ -267,13 +267,13 @@ exports.StorageSectionService = AbstractSectionService.specialize({
 
     getEncryptedVolumeImporterInstance: {
         value: function() {
-            return this._storageRepository.getEncryptedVolumeImporterInstance();
+            return this._volumeRepository.getEncryptedVolumeImporterInstance();
         }
     },
 
     getEncryptedVolumeActionsForVolume: {
         value: function (volume) {
-            return this._storageRepository.getEncryptedVolumeActionsInstance().then(function (encryptedVolumeActions) {
+            return this._volumeRepository.getEncryptedVolumeActionsInstance().then(function (encryptedVolumeActions) {
                 encryptedVolumeActions.volume = volume;
                 return encryptedVolumeActions;
             })
@@ -307,37 +307,37 @@ exports.StorageSectionService = AbstractSectionService.specialize({
 
     listImportableDisks: {
         value: function() {
-            return this._storageRepository.listImportableDisks();
+            return this._volumeRepository.listImportableDisks();
         }
     },
 
     listDisks: {
         value: function() {
-            return this._storageRepository.listDisks();
+            return this._volumeRepository.listDisks();
         }
     },
 
     listAvailableDisks: {
         value: function() {
-            return this._storageRepository.listAvailableDisks();
+            return this._volumeRepository.listAvailableDisks();
         }
     },
 
     markDiskAsReserved: {
         value: function(disk, isRefreshBlocked) {
-            return this._storageRepository.markDiskAsReserved(disk, isRefreshBlocked);
+            return this._volumeRepository.markDiskAsReserved(disk, isRefreshBlocked);
         }
     },
 
     markDiskAsAvailable: {
         value: function(disk, isTransient) {
-            return this._storageRepository.markDiskAsAvailable(disk, isTransient);
+            return this._volumeRepository.markDiskAsAvailable(disk, isTransient);
         }
     },
 
     clearReservedDisks: {
         value: function(isRefreshBlocked) {
-            return this._storageRepository.clearReservedDisks(isRefreshBlocked);
+            return this._volumeRepository.clearReservedDisks(isRefreshBlocked);
         }
     },
 
@@ -351,7 +351,7 @@ exports.StorageSectionService = AbstractSectionService.specialize({
 
     clearTemporaryAvailableDisks: {
         value: function() {
-            return this._storageRepository.clearTemporaryAvailableDisks();
+            return this._volumeRepository.clearTemporaryAvailableDisks();
         }
     },
 
